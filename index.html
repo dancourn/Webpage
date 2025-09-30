@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Digital Banking Overview</title>
+
+  <style>
+    html { scroll-behavior: smooth; }
+    section { scroll-margin-top: 100px; }
+
+    /* -------------------------------------------------
+       Base layout
+    --------------------------------------------------*/
+    :root{
+      --theme-blue:#0056b3;
+      --container-max:1320px;
+      --container-pad-x:16px;
+      --section-py:16px;
+      --section-mb:16px;
+    }
+    body{
+      font-family: "Arial", sans-serif;
+      line-height:1.5; margin:0; padding:0;
+      color:#333;
+      /* blue↔white gradient behind the white card */
+      background:
+        radial-gradient(1100px 700px at 50% 120px,
+          rgba(0,86,179,.22) 0%,
+          rgba(0,86,179,.10) 38%,
+          rgba(0,86,179,0) 70%),
+        linear-gradient(180deg,#fff 0%,#f7fbff 100%);
+      background-attachment:fixed;
+    }
+    .container{
+      width:90%; max-width:var(--container-max);
+      margin:20px auto; padding:0 var(--container-pad-x);
+      background:#fff; border-radius:12px;
+      box-shadow:0 8px 28px rgba(0,0,0,.10);
+      margin-top:80px; /* for fixed header */
+    }
+    header{
+      position:fixed; top:0; left:0; right:0; z-index:1000;
+      background:var(--theme-blue); color:#fff; text-align:center;
+      padding:10px 0;
+    }
+    header nav ul{ list-style:none; margin:0; padding:0; }
+    header nav ul li{ display:inline; margin:0 10px; }
+    header nav ul li a{ color:#fff; font-weight:bold; text-decoration:none; }
+    header nav ul li a:hover{ text-decoration:underline; }
+
+    /* -------------------------------------------------
+       Hero
+    --------------------------------------------------*/
+    .hero-title{
+      text-align:center; padding:32px 16px; margin-bottom:16px; position:relative;
+    }
+    .hero-title h1{
+      color:var(--theme-blue);
+      font-size:clamp(3rem,3.5vw + 1rem,4rem);
+      font-weight:800; margin:0 0 10px;
+      display:inline-block; background:#fff; padding:0 15px; position:relative; z-index:1;
+    }
+    .hero-title::after{
+      content:""; position:absolute; top:50%; left:0; right:0; height:1.5px; background:var(--theme-blue); z-index:0;
+    }
+    .hero-title p{ margin:0; font-size:1.1em; color:#555; }
+
+    /* ---------- Section headers: side lines that adapt ---------- */
+    section > h2{
+      color: var(--theme-blue);
+      font-size: clamp(2.2rem, 2.2vw + 1.2rem, 3rem);
+      line-height: 1.1;
+      margin: 20px 0 10px;
+      display: flex;              /* text becomes the middle flex item */
+      align-items: center;
+      justify-content: center;
+      gap: 12px;                  /* small gap between text and lines */
+      width: 100%;                /* let lines reach the container edges */
+    }
+    section > h2::before,
+    section > h2::after{
+      content: "";
+      flex: 1 1 0;                /* lines expand/shrink automatically */
+      height: 2px;
+      background: var(--theme-blue);
+      opacity: .9;
+    }
+
+    /* Center only the immediate subheader under each section */
+    section > h3{
+      text-align: center;
+      margin: 8px auto 12px;
+      max-width: 1000px;
+    }
+
+    /* -------------------------------------------------
+       KPI tiles (DIGITAL BANKING facts)
+    --------------------------------------------------*/
+    .kpi-tiles{ display:flex; flex-wrap:wrap; gap:12px; margin-top:8px; }
+    .kpi-tile{
+      background:#e9ecef; border:1px solid #dee2e6; border-radius:8px;
+      padding:16px; flex:1 1 260px; text-align:center;
+      transition: transform .2s ease, box-shadow .2s ease, background-color .2s ease, color .2s ease;
+    }
+    .kpi-tile h3{ margin:0 0 6px; color:var(--theme-blue); font-size:1.3em; }
+    .kpi-tile p{ margin:0; color:#555; }
+    .kpi-tile:hover{ background:#0d6efd; color:#fff; box-shadow:0 10px 24px rgba(13,110,253,.35); transform:translateY(-6px); }
+    .kpi-tile:hover h3, .kpi-tile:hover p{ color:#fff; }
+
+    /* Match KPI hover on Customer Value, Data Science, and Revolut tiles */
+    .grid-item,
+    .case-study-details > div {
+      transition: transform .2s ease, box-shadow .2s ease,
+                  background-color .2s ease, color .2s ease;
+    }
+    .grid-item:hover,
+    .case-study-details > div:hover {
+      background-color: #0d6efd;
+      color: #fff;
+      box-shadow: 0 10px 24px rgba(13,110,253,0.35);
+      transform: translateY(-6px);
+      border-color: transparent;
+    }
+    .grid-item:hover h3,
+    .grid-item:hover p,
+    .case-study-details > div:hover h3,
+    .case-study-details > div:hover p,
+    .case-study-details > div:hover li,
+    .case-study-details > div:hover .note {
+      color: #fff;
+    }
+    .grid-item:focus-within,
+    .case-study-details > div:focus-within {
+      background-color: #0d6efd;
+      color: #fff;
+      box-shadow: 0 10px 24px rgba(13,110,253,0.35);
+      transform: translateY(-6px);
+      border-color: transparent;
+    }
+
+    /* -------------------------------------------------
+       Lists & two-column flow on wide screens
+    --------------------------------------------------*/
+    .container>section p{ margin:6px 0 10px; }
+    .container>section ul{ margin:6px 0 10px 18px; }
+    .container>section ul li{ margin-bottom:6px; }
+   @media (min-width: 950px){
+  .container>section ul.split-2{ columns: 2; column-gap: 32px; }
+
+  /* keep each bullet on a single line/column */
+  .container>section ul.split-2 > li{
+    break-inside: avoid;
+    -webkit-column-break-inside: avoid;
+    -moz-column-break-inside: avoid;
+    padding-right: 8px; /* tiny buffer near column edge */
+  }
+}
+
+    /* -------------------------------------------------
+       Accordion
+    --------------------------------------------------*/
+    .accordion .accordion-item{ border:1px solid #ccc; margin-bottom:8px; border-radius:4px; overflow:hidden; }
+    .accordion .accordion-title{
+      background:#f4f4f4; color:#333; cursor:pointer; padding:12px; width:100%; text-align:left; border:none; outline:none; font-weight:bold;
+      transition:background-color .3s ease;
+    }
+    .accordion .accordion-title:hover{ background:#e9ecef; }
+    .accordion .accordion-content{ padding:0 15px; background:#fff; overflow:hidden; max-height:0; transition:max-height .3s ease-out; }
+    .accordion .accordion-content p{ padding:12px 0; margin:0; color:#555; }
+    .accordion .accordion-title:after{ content:"+"; color:#777; font-weight:bold; float:right; margin-left:5px; transition: transform .3s ease; }
+    .accordion .active:after{ content:"-"; transform:rotate(180deg); }
+
+    /* -------------------------------------------------
+       Cards / grids
+    --------------------------------------------------*/
+    .grid{ display:grid; grid-template-columns:repeat(auto-fit, minmax(280px,1fr)); gap:16px; margin-top:16px; }
+    .grid-item{ background:#e9ecef; padding:20px; border-radius:8px; border:1px solid #dee2e6; }
+    .case-study-details{ display:grid; grid-template-columns:repeat(auto-fit, minmax(250px,1fr)); gap:16px; margin-top:16px; }
+    .case-study-details div{ background:#e9ecef; padding:20px; border-radius:8px; border:1px solid #dee2e6; }
+    .case-study-details h3{ margin:0 0 10px; color:#0056b3; font-size:1.2em; }
+    .case-study-details p{ margin:0; font-size:.95em; color:#555; }
+
+    /* -------------------------------------------------
+       Simple timeline (non-interactive)
+    --------------------------------------------------*/
+    .timeline-wrap{ max-width:1040px; margin:0 auto; }
+    .timeline-simple{ list-style:none; padding:4px 0; margin:0; }
+    .timeline-item{ position:relative; padding:8px 0 10px 32px; border-bottom:1px solid #eee; }
+    .timeline-item:last-child{ border-bottom:none; }
+    .dot{ position:absolute; left:0; top:14px; width:12px; height:12px; border-radius:50%; background:#0d6efd; box-shadow:0 0 0 3px #e7f1ff; }
+    .period{ font-weight:700; color:#0d6efd; display:inline-block; margin-right:8px; }
+    .timeline-title{ margin:6px 0 4px; color:#0d6efd; display:inline; }
+    .timeline-desc{ margin:0; color:#444; }
+
+    /* -------------------------------------------------
+       Scroll-fade for sections (progressive)
+    --------------------------------------------------*/
+    .fade-section{ opacity:0; transform:translateY(12px); transition:opacity .5s ease, transform .5s ease; will-change:opacity,transform; }
+    .fade-section.is-visible{ opacity:1; transform:translateY(0); }
+    @media (prefers-reduced-motion: reduce){
+      .fade-section{ opacity:1 !important; transform:none !important; transition:none !important; }
+    }
+
+    /* =====================================================
+       Typography & Emphasis Refresh
+    ===================================================== */
+    body {
+      font-family: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI",
+                   Roboto, "Helvetica Neue", Arial, "Noto Sans", "Apple Color Emoji",
+                   "Segoe UI Emoji";
+      font-feature-settings: "tnum" 1, "lnum" 1;
+    }
+    h1, h2 { font-weight: 800; letter-spacing: -0.015em; }
+    h3, h4 { font-weight: 700; letter-spacing: -0.005em; }
+    h3, h4 { color: #0d6efd; }
+    a {
+      color: #0d6efd;
+      text-decoration: underline;
+      text-decoration-thickness: 1px;
+      text-underline-offset: 2px;
+    }
+    a:hover { color: #0a58ca; }
+    section ul li > strong {
+      color: var(--theme-blue);
+      font-weight: 800;
+    }
+    section p strong {
+      color: #0b4a94;
+      font-weight: 700;
+    }
+    em {
+      font-style: normal;
+      color: #0d6efd;
+      font-weight: 600;
+    }
+    .kpi-tile h3 {
+      font-size: 1.55em;
+      font-weight: 800;
+      line-height: 1.1;
+    }
+    .kpi-tile p { font-size: 1.02em; }
+    .grid-item h3 { font-weight: 800; }
+    .grid-item p  { font-size: 1.02em; }
+    .case-study-details h3 { font-weight: 800; }
+    .case-study-details p  { font-size: 1.02em; }
+    .case-study-details .meta li strong { color: var(--theme-blue); font-weight: 800; }
+    .case-study-details .note { color: #445; opacity: .9; }
+    .timeline-title   { font-weight: 700; color: #0d6efd; }
+    .timeline-desc    { color: #333; }
+    .period {
+      color: #0b4a94;
+      font-weight: 800;
+      margin-right: 8px;
+    }
+    section > h3 {
+      text-align: center;
+      margin: 8px auto 12px;
+      max-width: 1000px;
+    }
+    h4::before, h4::after { content: none !important; }
+  </style>
+</head>
+<body>
+<header>
+  <nav>
+    <ul>
+      <li><a href="#hero-intro" target="_self">Overview</a></li>
+      <li><a href="#history" target="_self">History</a></li>
+      <li><a href="#economic-drivers" target="_self">Economic Drivers</a></li>
+      <li><a href="#customer-value" target="_self">Customer Value</a></li>
+      <li><a href="#investor-value" target="_self">Investor Value</a></li>
+      <li><a href="#key-risks" target="_self">Key Risks</a></li>
+      <li><a href="#future-outlook" target="_self">Future Outlook</a></li>
+      <li><a href="#revolut-focus" target="_self">Revolut Focus</a></li>
+      <li><a href="#data-science-skills" target="_self">Data Science Skills</a></li>
+    </ul>
+  </nav>
+</header>
+
+<div class="container">
+
+  <div class="hero-title">
+    <h1>Digital Banking</h1>
+    <p>An All-In-One Guide to Digital Banking</p>
+  </div>
+
+  <!-- ======================== OVERVIEW ======================== -->
+  <section id="hero-intro" class="fade-section">
+    <h2>Overview</h2>
+    <h3>Understanding the Digital Transformation in Finance</h3>
+    <p>Digital banking means using websites and mobile apps to do things you used to do at a branch: check your balance, pay bills, send money, save and invest, and get help. It’s faster, always open, and often cheaper to run—so banks can offer more features and better prices. You also get better tools for daily life, like spending alerts, simple budgets, and quick ways to set money aside for goals.</p>
+
+    <!-- KPI tiles — DIGITAL BANKING facts -->
+    <div class="kpi-tiles">
+      <div class="kpi-tile">
+        <h3>About 2 in 3 adults</h3>
+        <p>Used a digital payment in the last year (worldwide). This includes phone taps, online checkouts, and sending money in apps.</p>
+      </div>
+      <div class="kpi-tile">
+        <h3>266B+ payments</h3>
+        <p>“Instant” payments in 2023 across many countries. Money can land in the other person’s account in seconds, not days.</p>
+      </div>
+      <div class="kpi-tile">
+        <h3>Apps first</h3>
+        <p>In many places, most everyday banking now happens on phones. People check balances, move money, and get help on the go.</p>
+      </div>
+    </div>
+
+    <h3>What Digital Changes</h3>
+    <ul class="split-2">
+      <li><strong>Where banking happens:</strong> more in apps and other services you already use, not just in branches. For example, you might split a dinner bill in a chat app or pay a bill from your phone in a few taps.</li>
+      <li><strong>More personal:</strong> tips and alerts that match your spending and goals. If rent is due or travel is coming up, the app can remind you or suggest a smarter way to pay.</li>
+      <li><strong>Faster money:</strong> new “instant” payment systems move money in seconds instead of days. That means quicker paychecks, faster refunds, and less time for transfers to clear.</li>
+      <li><strong>Lower costs:</strong> online sign-up and self-service cut paperwork and wait times. Banks save on branch costs and can pass some of that on with lower fees.</li>
+      <li><strong>Smarter safety:</strong> constant checks help spot strange activity early. You can lock a card in the app, use face or fingerprint login, and get alerts the moment something changes.</li>
+    </ul>
+  </section>
+
+  <!-- ======================== HISTORY ======================== -->
+  <section id="history" class="fade-section">
+    <h2>History</h2>
+    <h3>Evolution of Digital Banking</h3>
+    <div class="timeline-wrap">
+      <ul class="timeline-simple">
+        <li class="timeline-item">
+          <span class="dot"></span>
+          <span class="period">Late 1980s–Early 1990s</span>
+          <span class="timeline-title">Early Online Banking</span>
+          <p class="timeline-desc">Banks test dial-up and PC banking; bigger ATM networks and updated payment systems set the stage. Most people still used branches, but the ideas for online banking were born.</p>
+        </li>
+        <li class="timeline-item">
+          <span class="dot"></span>
+          <span class="period">Mid-1990s</span>
+          <span class="timeline-title">Internet-Only Banks</span>
+          <p class="timeline-desc">First web-only banks appear. The idea works, but winning trust and customers is hard without branches. Still, these early players showed what was possible.</p>
+        </li>
+        <li class="timeline-item">
+          <span class="dot"></span>
+          <span class="period">2000s</span>
+          <span class="timeline-title">Security & Design Improve</span>
+          <p class="timeline-desc">Two-step logins, safer websites, and cleaner designs bring more people online. Banks add simple bill pay, basic alerts, and better support pages.</p>
+        </li>
+        <li class="timeline-item">
+          <span class="dot"></span>
+          <span class="period">Late 2000s</span>
+          <span class="timeline-title">Mobile Banking Arrives</span>
+          <p class="timeline-desc">Smartphones shift banking to apps. Mobile deposit, alerts, and person-to-person payments spread fast, and customers visit branches less often.</p>
+        </li>
+        <li class="timeline-item">
+          <span class="dot"></span>
+          <span class="period">2010s</span>
+          <span class="timeline-title">Challenger Banks & Open Data</span>
+          <p class="timeline-desc">New “app-first” banks grow quickly. In some places, rules let you safely share your bank data with other apps, which leads to better price checks and money tools.</p>
+        </li>
+        <li class="timeline-item">
+          <span class="dot"></span>
+          <span class="period">2020s</span>
+          <span class="timeline-title">Real-Time & AI</span>
+          <p class="timeline-desc">Payments get near-instant in more countries. AI moves from back-office tools to helpful in-app tips and chat, making support faster and more useful.</p>
+        </li>
+      </ul>
+    </div>
+  </section>
+
+  <!-- ======================== ECONOMIC DRIVERS ======================== -->
+  <section id="economic-drivers" class="fade-section">
+    <h2>Economic Drivers</h2>
+    <h3>Why Digital Banking Keeps Growing</h3>
+    <ul class="split-2">
+      <li><strong>Phones everywhere:</strong> more smartphones and better internet mean more people can bank online. Even small towns and rural areas now have better coverage, so more folks can join.</li>
+      <li><strong>Faster payments:</strong> paying in seconds makes new things possible—like instant pay for gig work or faster refunds. It also helps small businesses manage cash flow with fewer delays.</li>
+      <li><strong>Cheaper to run:</strong> online sign-up and automated tasks lower costs. Banks can handle more customers without adding a lot of staff or buildings, which keeps prices down.</li>
+      <li><strong>Better use of data:</strong> with your permission, banks can use spending patterns to offer smarter help and fairer pricing. For example, they can warn you before a bill hits or suggest cheaper options.</li>
+      <li><strong>Helpful rules:</strong> many countries push for safe data-sharing and tougher tech checks. This builds trust, reduces outages, and makes it easier for new services to work together.</li>
+      <li><strong>Staying profitable:</strong> banks that win customers online and use data well handle up-and-down markets better. They can grow faster without opening lots of branches.</li>
+    </ul>
+  </section>
+
+  <!-- ======================== CUSTOMER VALUE ======================== -->
+  <section id="customer-value" class="fade-section">
+    <h2>Customer Value</h2>
+    <h3>Why It’s Useful for Everyday People</h3>
+    <div class="grid">
+      <div class="grid-item">
+        <h3>Speed & Certainty</h3>
+        <p>Get paid and move money quickly—even on nights and weekends. Easier bills and fewer delays. You see updates right away, which helps you avoid overdrafts and late fees.</p>
+      </div>
+      <div class="grid-item">
+        <h3>Healthier Money Habits</h3>
+        <p>Automatic savings, goal trackers, and helpful alerts make it easier to stay on top of cash flow. You can set rules like “save a little every time I get paid” or “round up each purchase.”</p>
+      </div>
+      <div class="grid-item">
+        <h3>Travel-Friendly</h3>
+        <p>Lower-friction international transfers, cards that work abroad, and safety controls you can switch on and off. You can also see rates up front and freeze a card in seconds if it’s lost.</p>
+      </div>
+      <div class="grid-item">
+        <h3>More Control</h3>
+        <p>Instant notifications, card locks, virtual cards for one-time use, and clear choices about sharing your data. You decide who sees what, and you can change that anytime.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================== INVESTOR VALUE ======================== -->
+  <section id="investor-value" class="fade-section">
+    <h2>Investor Value</h2>
+    <h3>What the Market Likes</h3>
+    <ul class="split-2">
+      <li><strong>Higher returns from doing more online:</strong> selling and serving customers digitally can lift profits. Apps help reach new users fast without building new branches.</li>
+      <li><strong>New revenue sources:</strong> direct bank-to-bank payments and data-based offers reduce reliance on card fees. Simple bundles and subscriptions also add steadier income.</li>
+      <li><strong>Scale benefits:</strong> once the tech is built, serving each extra customer costs less. This lets firms grow without costs rising at the same speed.</li>
+      <li><strong>Fewer surprises:</strong> strong plans for outages, fraud, and errors protect earnings. Clear rules and better testing cut the odds of big setbacks.</li>
+    </ul>
+  </section>
+
+  <!-- ======================== KEY RISKS ======================== -->
+  <section id="key-risks" class="fade-section">
+    <h2>Key Risks</h2>
+    <h3>What Can Go Wrong</h3>
+    <div class="accordion">
+      <div class="accordion-item">
+        <button class="accordion-title">Scams (APP Fraud)</button>
+        <div class="accordion-content">
+          <p>Criminals trick people into sending money. Banks fight this with name checks, clearer warnings, phone-based ID, and faster blocking of “mule” accounts. People can help by pausing before sending, using known contacts, and turning on strong login tools.</p>
+        </div>
+      </div>
+      <div class="accordion-item">
+        <button class="accordion-title">Tech Outages & Vendor Risk</button>
+        <div class="accordion-content">
+          <p>Many banks use the same cloud and core tech. That can mean bigger outages if something breaks. Regulators ask for tougher testing, backups in different places, and clear messages to customers when things go wrong.</p>
+        </div>
+      </div>
+      <div class="accordion-item">
+        <button class="accordion-title">Financial Crime & AI Mistakes</button>
+        <div class="accordion-content">
+          <p>Fast payments leave little time to stop bad transfers. AI can help, but models must be watched so they stay fair and accurate. Teams check results often, fix errors, and explain decisions when needed.</p>
+        </div>
+      </div>
+      <div class="accordion-item">
+        <button class="accordion-title">Privacy & Consent</button>
+        <div class="accordion-content">
+          <p>Sharing data between apps is useful but must be clear and safe. Good consent screens, simple language, and “only what’s needed” data sharing help protect users while still giving value.</p>
+        </div>
+      </div>
+      <div class="accordion-item">
+        <button class="accordion-title">Credit & Cash Pressures</button>
+        <div class="accordion-content">
+          <p>Quick growth can hide risk when times are good. When the economy turns, weak loans and funding gaps show up fast. Careful checks and steady funding sources lower this risk.</p>
+        </div>
+      </div>
+      <div class="accordion-item">
+        <button class="accordion-title">Heavy Competition</button>
+        <div class="accordion-content">
+          <p>Big tech, wallets, and new ways to pay can squeeze fees. Winners keep things simple, fix problems fast, and earn trust with clear prices and strong customer support.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================== FUTURE OUTLOOK ======================== -->
+  <section id="future-outlook" class="fade-section">
+    <h2>Future Outlook</h2>
+    <h3>What’s Next (2025–2030)</h3>
+    <ul class="split-2">
+      <li><strong>Instant by default:</strong> more countries will make “send now, arrive now” the norm—even across borders. This will help families, small shops, and global workers move money with less stress.</li>
+      <li><strong>Pay straight from your bank:</strong> subscriptions and bills will more often pull from your account without using a card. This can mean lower fees and clearer bills you can manage in one app.</li>
+      <li><strong>Helpful AI:</strong> not just advice—AI will take small actions for you (like moving spare cash) with your OK. It will also answer common questions and spot money leaks you might miss.</li>
+      <li><strong>Login without passwords:</strong> passkeys and biometrics become standard, with background checks for risky activity. This means fewer passwords to remember and fewer chances for theft.</li>
+      <li><strong>Stronger systems:</strong> apps will be built to keep running even if one region or vendor goes down. You may not notice a problem because traffic switches behind the scenes.</li>
+      <li><strong>Broader “open finance”:</strong> with permission, services can use data beyond banking—like payroll or utilities—to tailor offers. This can lead to fairer prices and better budgeting tools.</li>
+    </ul>
+  </section>
+
+  <!-- ======================== REVOLUT FOCUS ======================== -->
+  <section id="revolut-focus" class="fade-section">
+    <h2>Focus on Revolut</h2>
+    <h3>A Leading Challenger Bank</h3>
+    <p>Revolut is a global financial super-app offering accounts, cards, transfers, savings, investing, travel, and more—designed to help people and businesses “do all things money” in a few taps. It grew by focusing on simple design, fast sign-up, and a wide set of tools in one place.</p>
+
+    <div class="case-study-details">
+      <div>
+        <h3>Business Overview</h3>
+        <ul class="meta">
+          <li><strong>Headquarters:</strong> London, UK (Canary Wharf)</li>
+          <li><strong>Founded:</strong> 2015</li>
+          <li><strong>Employees:</strong> ~10,000+ (2024)</li>
+          <li><strong>Customers:</strong> 60M+ personal; 500k+ business</li>
+          <li><strong>Markets:</strong> 140+ countries/regions supported</li>
+        </ul>
+        <p class="note">Figures reflect 2024–2025 disclosures. Growth has come from word of mouth, frequent product updates, and clear pricing.</p>
+      </div>
+
+      <div>
+        <h3>Products (Retail)</h3>
+        <p>Multi-currency accounts; cards; international transfers; budgeting & analytics; savings vaults; <em>stocks</em> and <em>crypto</em>; travel benefits; insurance; junior accounts. The app puts most daily money jobs in one place so users don’t need many separate apps.</p>
+      </div>
+
+      <div>
+        <h3>Plans & Pricing</h3>
+        <p><strong>Standard</strong> ($0), <strong>Premium</strong>, and <strong>Metal</strong> tiers with added perks and priority support; pricing varies by market. Paid plans often add travel extras, higher limits, and faster help when you need it.</p>
+      </div>
+
+      <div>
+        <h3>Business & In-Person Payments</h3>
+        <p>Revolut Business offers multi-currency accounts and cards. In-person POS features include product lists, size/color options, and quick edits from the web. This helps small shops get up and running without heavy hardware.</p>
+      </div>
+
+      <div>
+        <h3>Regulatory & Licences</h3>
+        <p>EU banking license via Lithuania; UK authorization moving through a staged process; US partner-bank ties updated in 2024. These steps allow the company to offer more products in more places while meeting local rules.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ======================== DATA SCIENCE ======================== -->
+  <section id="data-science-skills" class="fade-section">
+    <h2>Data Science/ML Skills</h2>
+    <h3>Skills That Power Digital Banking</h3>
+    <div class="grid">
+      <div class="grid-item"><h3>Data Analysis</h3><p>Find patterns in how people spend and save, see where apps confuse users, and measure which features truly help. This turns raw activity into clear choices for what to build next.</p></div>
+      <div class="grid-item"><h3>Machine Learning</h3><p>Spot fraud, rate credit fairly, and flag unusual activity—fast enough for near-instant payments. Models learn from past data so decisions get better over time.</p></div>
+      <div class="grid-item"><h3>Data Visualization</h3><p>Clear dashboards for payment success, declines, fraud hotspots, and system health. Good visuals help teams act quickly when a number looks off.</p></div>
+      <div class="grid-item"><h3>Statistics</h3><p>Run tests to pick the best prices and features. Check that risk models still work as the economy changes, and adjust them when needed.</p></div>
+      <div class="grid-item"><h3>Big Data</h3><p>Stream and store lots of events (payments, logins) safely and privately to power real-time decisions. This keeps the app fast even on busy days.</p></div>
+      <div class="grid-item"><h3>Programming</h3><p>Use Python/R/SQL to clean data and build models. Set up tools that update models often and keep a record of what changed and why.</p></div>
+      <div class="grid-item"><h3>Cloud</h3><p>Build apps that stay up, scale on peak days, and switch to backups if a vendor or region has issues. This keeps customers online with fewer breaks.</p></div>
+    </div>
+  </section>
+
+</div>
+
+<script>
+  // Accordion
+  (function(){
+    var acc = document.getElementsByClassName("accordion-title");
+    for (var i = 0; i < acc.length; i++) {
+      acc[i].addEventListener("click", function(){
+        this.classList.toggle("active");
+        var panel = this.nextElementSibling;
+        if (panel.style.maxHeight) { panel.style.maxHeight = null; }
+        else { panel.style.maxHeight = panel.scrollHeight + "px"; }
+      });
+    }
+  })();
+
+  // Section fade-in
+  (function(){
+    const sections = document.querySelectorAll('.container > section');
+    sections.forEach((sec, i) => {
+      sec.classList.add('fade-section');
+      sec.style.transitionDelay = (i === 0 ? '0ms' : Math.min(i * 60, 240) + 'ms');
+    });
+    const io = new IntersectionObserver((entries) => {
+      entries.forEach((entry)=>{ if(entry.isIntersecting){ entry.target.classList.add('is-visible'); io.unobserve(entry.target); }});
+    }, { threshold: 0.12, rootMargin: '0px 0px -10% 0px' });
+    sections.forEach(sec => io.observe(sec));
+  })();
+</script>
+</body>
+</html>
